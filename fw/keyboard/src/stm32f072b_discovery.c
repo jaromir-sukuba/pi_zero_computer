@@ -8,18 +8,18 @@ void mouse_button_Init(void)
 uint8_t mouse_button_state(void)
 {
     uint8_t tmp=0;
-    if ((GPIOB->IDR&(1<<10))==0) tmp = tmp | 0x01;
-    if ((GPIOB->IDR&(1<<2))==0) tmp = tmp | 0x02;
-    if ((GPIOB->IDR&(1<<11))==0) tmp = tmp | 0x04;
+    if ((GPIOA->IDR&(1<<0))==0) tmp = tmp | 0x01;
+    if ((GPIOA->IDR&(1<<1))==0) tmp = tmp | 0x04;
+    if ((GPIOA->IDR&(1<<2))==0) tmp = tmp | 0x02;
     return tmp;
 }
 
 
 void adc_init (void)
 {
-	RCC->AHBENR = RCC->AHBENR | RCC_AHBENR_GPIOAEN;
+	RCC->AHBENR = RCC->AHBENR | RCC_AHBENR_GPIOBEN;
 	RCC->APB2ENR = RCC->APB2ENR | RCC_APB2ENR_ADCEN;
-	GPIOA->MODER = GPIOA->MODER | (0b11<<(2*0)) | (0b11<<(2*1));
+	GPIOB->MODER = GPIOB->MODER | (0b11<<(2*0)) | (0b11<<(2*1));
 	ADC1->CFGR1 = 0x00;
 	ADC1->CFGR2 = 0x00;
 	ADC1->CR = 0x01;
@@ -31,24 +31,25 @@ void keyb_init (void)
 {
 	RCC->AHBENR = RCC->AHBENR | RCC_AHBENR_GPIOBEN;
 	RCC->AHBENR = RCC->AHBENR | RCC_AHBENR_GPIOAEN;
-	GPIOA->MODER = GPIOA->MODER | (0x01<<(2*6)) | (0x01<<(2*7));
-	GPIOA->MODER = GPIOA->MODER | (0x01<<(2*9)) | (0x01<<(2*10));
-	GPIOB->MODER = GPIOB->MODER | (0x01<<(2*0)) | (0x01<<(2*1));
-	GPIOA->OTYPER = GPIOA->OTYPER | (0x01<<6) | (0x01<<7);
-	GPIOB->OTYPER = GPIOB->OTYPER | (0x01<<0) | (0x01<<1);
+	RCC->AHBENR = RCC->AHBENR | RCC_AHBENR_GPIOCEN;
+	GPIOA->MODER = GPIOA->MODER | (0x01<<(2*3)) | (0x01<<(2*4));
+	GPIOC->MODER = GPIOC->MODER | (0x01<<(2*13)) | (0x01<<(2*14)) | (0x01<<(2*15));
+	GPIOB->MODER = GPIOB->MODER | (0x01<<(2*9));
+	GPIOC->OTYPER = GPIOC->OTYPER | (0x01<<13) | (0x01<<14) | (0x01<<15);
+	GPIOB->OTYPER = GPIOB->OTYPER | (0x01<<9) ;
 
 }
 
 void keyb_set_col (uint8_t col)
 {
-	GPIOA->BSRR = (1<<6);
-	GPIOA->BSRR = (1<<7);
-	GPIOB->BSRR = (1<<0);
-	GPIOB->BSRR = (1<<1);
-	if (col==3)	GPIOA->BRR = (1<<6);
-	if (col==2)	GPIOA->BRR = (1<<7);
-	if (col==1)	GPIOB->BRR = (1<<0);
-	if (col==0)	GPIOB->BRR = (1<<1);
+	GPIOB->BSRR = (1<<9);
+	GPIOC->BSRR = (1<<13);
+	GPIOC->BSRR = (1<<14);
+	GPIOC->BSRR = (1<<15);
+	if (col==0)	GPIOB->BRR = (1<<9);
+	if (col==1)	GPIOC->BRR = (1<<13);
+	if (col==2)	GPIOC->BRR = (1<<14);
+	if (col==3)	GPIOC->BRR = (1<<15);
 
 }
 
@@ -56,10 +57,12 @@ uint8_t keyb_get_col (void)
 {
 uint8_t tmp;
 tmp = 0;
-if ((GPIOA->IDR)&(1<<2)) tmp = tmp  | 0x08;
-if ((GPIOA->IDR)&(1<<3)) tmp = tmp  | 0x04;
-if ((GPIOA->IDR)&(1<<4)) tmp = tmp  | 0x02;
-if ((GPIOA->IDR)&(1<<5)) tmp = tmp  | 0x01;
+
+if ((GPIOB->IDR)&(1<<4)) tmp = tmp  | 0x01;
+if ((GPIOB->IDR)&(1<<5)) tmp = tmp  | 0x02;
+if ((GPIOB->IDR)&(1<<6)) tmp = tmp  | 0x04;
+if ((GPIOB->IDR)&(1<<8)) tmp = tmp  | 0x08;
+
 return tmp;
 }
 
@@ -71,37 +74,30 @@ uint8_t get_kbd_state (uint8_t col, uint8_t * keys, uint8_t * modifiers)
     uint8_t colr;
     keyb_set_col(col);
     colr = (~keyb_get_col())&0x0F;
-    if (colr&0x08)
+    if (col==0)
 	{
-	if (col==0) mod_tmp = mod_tmp | 0x08;
-	if (col==1) mod_tmp = mod_tmp | 0x04;
-	if (col==2) mod_tmp = mod_tmp | 0x02;
-	if (col==3) mod_tmp = mod_tmp | 0x01;
-	colr = colr&0x07;
+	if (colr&0x01) key_tmp = 1;
+	if (colr&0x02) key_tmp = 2;
+	if (colr&0x04) key_tmp = 3;
+	if (colr&0x08) key_tmp = 10;
 	}
-    if (colr&0x04)
+    if (col==1)
 	{
-	if (col==0) key_tmp = 7;
-	if (col==1) key_tmp = 8;
-	if (col==2) key_tmp = 9;
-	if (col==3) key_tmp = 12;
+	if (colr&0x01) key_tmp = 4;
+	if (colr&0x02) key_tmp = 5;
+	if (colr&0x04) key_tmp = 6;
+	if (colr&0x08) key_tmp = 11;
 	}
-    if (colr&0x02)
+    if (col==2)
 	{
-	if (col==0) key_tmp = 4;
-	if (col==1) key_tmp = 5;
-	if (col==2) key_tmp = 6;
-	if (col==3) key_tmp = 11;
-	}
-    if (colr&0x01)
-	{
-	if (col==0) key_tmp = 1;
-	if (col==1) key_tmp = 2;
-	if (col==2) key_tmp = 3;
-	if (col==3) key_tmp = 10;
+	if (colr&0x01) key_tmp = 7;
+	if (colr&0x02) key_tmp = 8;
+	if (colr&0x04) key_tmp = 9;
+	if (colr&0x08) key_tmp = 12;
 	}
     if (col==3)
 	{
+	mod_tmp = colr;
 	key_last = key_tmp;
 	mod_last = mod_tmp;
 	key_tmp = 0;
@@ -123,14 +119,11 @@ return ADC1->DR;
 
 }
 
-#define	J_MIN_X		800
-#define	J_MIDL_X	1700
-#define	J_MIDH_X	2200
-#define	J_MAX_X		3600
-#define	J_MIN_Y		700
+
+#define	J_MIDL_X	1650
+#define	J_MIDH_X	2100
 #define	J_MIDL_Y	1650
 #define	J_MIDH_Y	2000
-#define	J_MAX_Y		3400
 
 #define	Y_DIV		120
 #define	X_DIV		120
@@ -140,8 +133,8 @@ uint8_t get_mouse_speed (int16_t * speed_x, int16_t * speed_y)
     uint16_t adcresx,adcresy;
     int16_t speedx,speedy;
 
-    adcresx = adc_get(0);
-    adcresy = adc_get(1);
+    adcresx = adc_get(8);
+    adcresy = adc_get(9);
 
 
 

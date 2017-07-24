@@ -89,8 +89,8 @@ uint8_t key_m_scancodes_ex [11*5] =
 	KEY_SLASH,KEY_BACKSLASH,KEY_BACKSLASH,0xFF,0xFF,
 	KEY_LEFTBRACE,KEY_RIGHTBRACE,KEY_6,0xFF,0xFF,
 	KEY_LEFTBRACE,KEY_RIGHTBRACE,KEY_5,0xFF,0xFF,
-	KEY_0,KEY_9,KEY_6,0xFF,0xFF,
-	KEY_DOT,KEY_COMMA,KEY_MINUS,0xFF,0xFF,
+	KEY_9,KEY_0,KEY_SEMICOLON,0xFF,0xFF,
+	KEY_COMMA,KEY_DOT,KEY_MINUS,0xFF,0xFF,
 	KEY_EQUAL,KEY_MINUS,KEY_8,0xFF,0xFF,
 	KEY_APOSTROPHE,KEY_APOSTROPHE,KEY_GRAVE,0xFF,0xFF,
 	KEY_1,KEY_2,KEY_3,0xFF,0xFF,
@@ -104,7 +104,7 @@ uint8_t key_m_scancodes_ex_mod [11*5] =
 	KEY_MOD_NONE,KEY_MOD_NONE,KEY_MOD_LSHIFT,KEY_MOD_NONE,KEY_MOD_NONE,
 	KEY_MOD_NONE,KEY_MOD_NONE,KEY_MOD_LSHIFT,KEY_MOD_NONE,KEY_MOD_NONE,
 	KEY_MOD_LSHIFT,KEY_MOD_LSHIFT,KEY_MOD_LSHIFT,KEY_MOD_NONE,KEY_MOD_NONE,
-	KEY_MOD_LSHIFT,KEY_MOD_LSHIFT,KEY_MOD_LSHIFT,KEY_MOD_NONE,KEY_MOD_NONE,
+	KEY_MOD_LSHIFT,KEY_MOD_LSHIFT,KEY_MOD_NONE,KEY_MOD_NONE,KEY_MOD_NONE,
 	KEY_MOD_LSHIFT,KEY_MOD_LSHIFT,KEY_MOD_LSHIFT,KEY_MOD_NONE,KEY_MOD_NONE,
 	KEY_MOD_LSHIFT,KEY_MOD_NONE,KEY_MOD_LSHIFT,KEY_MOD_NONE,KEY_MOD_NONE,
 	KEY_MOD_NONE,KEY_MOD_LSHIFT,KEY_MOD_LSHIFT,KEY_MOD_NONE,KEY_MOD_NONE,
@@ -150,31 +150,34 @@ uint8_t key_buffer_dec (void)
     }
 
 
-//#ifdef qqqqq
+uint8_t HID_Buffer[10];
+uint8_t cnt;
+
+//#ifdef qq
 void SysTick_Handler(void)
 {
-  uint8_t HID_Buffer[10];
-    HAL_IncTick();
+      HAL_IncTick();
   
   get_kbd_state(kbd_cols,&keys,&mods);
   kbd_cols++;
   if (kbd_cols==4) kbd_cols = 0;
-  LED_R_OFF;
+  LED_O_OFF;
   if (key_m_cnt>0) key_m_cnt--;
   else	key_m_p = 0;
+//  if (0)
   if ((keys_last==0)&(keys!=0))
       {
-      LED_R_ON;
-      if ((mods==0)|(mods==0x08))
+      LED_O_ON;
+      if ((mods==0)|(mods==0x01))
 	  {
-	  if (((keys>9)&(mods==0))|((keys>10)&(mods==0x08)))
+	  if (((keys>9)&(mods==0))|((keys>10)&(mods==0x01)))
 	      {
 	      if ((keys==10)&(mods==0x00)) key_buffer_put(KEY_DELETE,0);
-	      if ((keys==10)&(mods==0x80)) {}					//never to be assigned
+	      if ((keys==10)&(mods==0x01)) {}					//never to be assigned
 	      if ((keys==11)&(mods==0x00)) key_buffer_put(KEY_BACKSPACE,0);
-	      if ((keys==11)&(mods==0x08)) key_buffer_put(KEY_ESC,0);
+	      if ((keys==11)&(mods==0x01)) key_buffer_put(KEY_ESC,0);
 	      if ((keys==12)&(mods==0x00)) key_buffer_put(KEY_ENTER,0);
-	      if ((keys==12)&(mods==0x08)) caps_lock++;
+	      if ((keys==12)&(mods==0x01)) caps_lock++;
 	      }
 	  else
 	      {
@@ -222,7 +225,7 @@ void SysTick_Handler(void)
 	  }
       else
 	  {
-	  if (mods==0x01)
+	  if (mods==0x08)
 	      {
 	      if (keys==1) key_buffer_put(KEY_TAB,0);
 	      if (keys==2) key_buffer_put(KEY_UP,0);
@@ -233,42 +236,78 @@ void SysTick_Handler(void)
 	      if (keys==7) key_buffer_put(KEY_HOME,0);
 	      if (keys==8) key_buffer_put(KEY_END,0);
 	      if (keys==9) key_buffer_put(KEY_PAGEDOWN,0);
-	      if (keys==10) key_buffer_put(KEY_F11,0);
-	      }
-	  if (mods==0x02)
-	      {
-	      if (keys==1) key_buffer_put(KEY_1,0);
-	      if (keys==2) key_buffer_put(KEY_2,0);
-	      if (keys==3) key_buffer_put(KEY_3,0);
-	      if (keys==4) key_buffer_put(KEY_4,0);
-	      if (keys==5) key_buffer_put(KEY_5,0);
-	      if (keys==6) key_buffer_put(KEY_6,0);
-	      if (keys==7) key_buffer_put(KEY_7,0);
-	      if (keys==8) key_buffer_put(KEY_8,0);
-	      if (keys==9) key_buffer_put(KEY_9,0);
-	      if (keys==10) key_buffer_put(KEY_0,0);
+	      if (keys==10) key_buffer_put(KEY_INSERT,0);
 	      }
 	  if (mods==0x04)
 	      {
+		  if (caps_lock&0x01)
+			  {
+			  if (keys==1) key_buffer_put(KEY_F1,0);
+			  if (keys==2) key_buffer_put(KEY_F2,0);
+			  if (keys==3) key_buffer_put(KEY_F3,0);
+			  if (keys==4) key_buffer_put(KEY_F4,0);
+			  if (keys==5) key_buffer_put(KEY_F5,0);
+			  if (keys==6) key_buffer_put(KEY_F6,0);
+			  if (keys==7) key_buffer_put(KEY_F7,0);
+			  if (keys==8) key_buffer_put(KEY_F8,0);
+			  if (keys==9) key_buffer_put(KEY_F9,0);
+			  if (keys==10) key_buffer_put(KEY_F10,0);
+			  if (keys==11) key_buffer_put(KEY_F11,0);
+			  if (keys==12) key_buffer_put(KEY_F12,0);
+			  }
+		  else
+			  {
+			  if (keys==1) key_buffer_put(KEY_1,0);
+			  if (keys==2) key_buffer_put(KEY_2,0);
+			  if (keys==3) key_buffer_put(KEY_3,0);
+			  if (keys==4) key_buffer_put(KEY_4,0);
+			  if (keys==5) key_buffer_put(KEY_5,0);
+			  if (keys==6) key_buffer_put(KEY_6,0);
+			  if (keys==7) key_buffer_put(KEY_7,0);
+			  if (keys==8) key_buffer_put(KEY_8,0);
+			  if (keys==9) key_buffer_put(KEY_9,0);
+			  if (keys==10) key_buffer_put(KEY_0,0);
+			  }
+	      }
+	  if (mods==0x02)
+	      {
+		  if (caps_lock&0x01)
+			  {
 
+			  }
+		  else
+			  {
+			  if (keys==1) key_buffer_put(KEY_A,KEY_MOD_LCTRL);
+			  if (keys==2) key_buffer_put(KEY_C,KEY_MOD_LCTRL);
+			  if (keys==3) key_buffer_put(KEY_D,KEY_MOD_LCTRL);
+			  if (keys==4) key_buffer_put(KEY_O,KEY_MOD_LCTRL);
+			  if (keys==5) key_buffer_put(KEY_Q,KEY_MOD_LCTRL);
+			  if (keys==6) key_buffer_put(KEY_S,KEY_MOD_LCTRL);
+			  if (keys==7) key_buffer_put(KEY_R,KEY_MOD_LCTRL);
+			  if (keys==8) key_buffer_put(KEY_V,KEY_MOD_LCTRL);
+			  if (keys==9) key_buffer_put(KEY_X,KEY_MOD_LCTRL);
+			  if (keys==10) key_buffer_put(KEY_H,KEY_MOD_LCTRL);
+			  if (keys==11) key_buffer_put(KEY_I,KEY_MOD_LCTRL);
+			  if (keys==12) key_buffer_put(KEY_Z,KEY_MOD_LCTRL);
+			  }
 	      }
 	  if (mods==0x09)
 	      {
 	      if (keys==2) key_buffer_put(KEY_Y,0);
 	      if (keys==3) key_buffer_put(KEY_N,0);
-	      if (keys==5) key_buffer_put(KEY_X,KEY_MOD_LCTRL);
-	      if (keys==6) key_buffer_put(KEY_Z,KEY_MOD_LCTRL);
-	      if (caps_lock&0x01)
-		  {
+	      if (keys==5) key_buffer_put(KEY_Q,0);
+	      if (keys==6) key_buffer_put(KEY_X,0);
 		  if (keys==8) key_buffer_put(KEY_C,KEY_MOD_LCTRL|KEY_MOD_LSHIFT);
 		  if (keys==9) key_buffer_put(KEY_V,KEY_MOD_LCTRL|KEY_MOD_LSHIFT);
-		  }
-	      else
-		  {
-		  if (keys==8) key_buffer_put(KEY_C,KEY_MOD_LCTRL);
-		  if (keys==9) key_buffer_put(KEY_V,KEY_MOD_LCTRL);
-		  }
-
+	      }
+	  if (mods==0x0C)
+	      {
+	      if (keys==1) key_buffer_put(KEY_F1,KEY_MOD_LALT);
+	      if (keys==2) key_buffer_put(KEY_F2,KEY_MOD_LALT);
+	      if (keys==4) key_buffer_put(KEY_F3,KEY_MOD_LALT);
+	      if (keys==5) key_buffer_put(KEY_F4,KEY_MOD_LALT);
+		  if (keys==7) key_buffer_put(KEY_F5,KEY_MOD_LALT);
+		  if (keys==8) key_buffer_put(KEY_F6,KEY_MOD_LALT);
 	      }
 	  }
       }
@@ -283,13 +322,13 @@ void SysTick_Handler(void)
 */
   if (caps_lock&0x01)
       {
-      if (key_m_cnt>0) LED_Y_OFF;
-      else LED_Y_ON;
+      if (key_m_cnt>0) LED_G_OFF;
+      else LED_G_ON;
       }
   else
       {
-      if (key_m_cnt>0) LED_Y_ON;
-      else LED_Y_OFF;
+      if (key_m_cnt>0) LED_G_ON;
+      else LED_G_OFF;
       }
   counter++;
   if (counter == 1)
@@ -345,47 +384,57 @@ void SysTick_Handler(void)
 //#endif
 
 /*
+
 void SysTick_Handler(void)
 {
-  uint8_t HID_Buffer[10];
-    HAL_IncTick();
-  counter++;
 
-  if (counter == 1400)
-  {
+   cnt++;
+
+	if (cnt==40)
+	{
+	HID_Buffer[0] = 1;
+	HID_Buffer[1] = 0;
+	HID_Buffer[2] = 2;
+	HID_Buffer[3] = 2;
+	USBD_HID_SendReport (&USBD_Device, HID_Buffer, 4);
+//		cnt = 0;
+	}
+
+
+	if (cnt==200)
+	{
 	HID_Buffer[0] = 2;
-	if (mod_out&0x01)
-	    HID_Buffer[1] = 0;
-	else
-	    HID_Buffer[1] = 2;
-	mod_out++;
+	HID_Buffer[1] = 0;
 	HID_Buffer[2] = 0;
-	HID_Buffer[3] = 0;
-	HID_Buffer[4] = 0x04;
+	HID_Buffer[3] = 0x04;
+	HID_Buffer[4] = 0;
 	HID_Buffer[5] = 0;
 	HID_Buffer[6] = 0;
 	HID_Buffer[7] = 0;
 	HID_Buffer[8] = 0;
-	USBD_HID_SendReport(&USBD_Device, HID_Buffer, 9);
+	USBD_HID_SendReport (&USBD_Device, HID_Buffer, 9);
+	}
 
-  }
-  if (counter == 1500)
-  {
+
+	if (cnt==210)
+	{
 	HID_Buffer[0] = 2;
-	HID_Buffer[1] = 2;
+	HID_Buffer[1] = 0;
 	HID_Buffer[2] = 0;
-	HID_Buffer[3] = 0;
-	HID_Buffer[4] = 0x00;
+	HID_Buffer[3] = 0x0;
+	HID_Buffer[4] = 0;
 	HID_Buffer[5] = 0;
 	HID_Buffer[6] = 0;
 	HID_Buffer[7] = 0;
 	HID_Buffer[8] = 0;
-	USBD_HID_SendReport(&USBD_Device, HID_Buffer, 9);
-	counter = 0;
-  }
+	USBD_HID_SendReport (&USBD_Device, HID_Buffer, 9);
+		cnt = 0;
+	}
+
 
 }
 */
+
 void USB_IRQHandler(void)
 {
   HAL_PCD_IRQHandler(&hpcd);

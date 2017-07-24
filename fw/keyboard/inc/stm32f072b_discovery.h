@@ -14,10 +14,10 @@ uint8_t keyb_get_col (void);
 uint8_t get_mouse_speed (int16_t * speed_x, int16_t * speed_y);
 uint8_t get_kbd_state (uint8_t col, uint8_t * keys, uint8_t * modifiers);
 
-#define	LED_R_ON	GPIOA->BSRR = (1<<9)
-#define	LED_R_OFF	GPIOA->BRR = (1<<9)
-#define	LED_Y_ON	GPIOA->BSRR = (1<<10)
-#define	LED_Y_OFF	GPIOA->BRR = (1<<10)
+#define	LED_G_ON	GPIOA->BSRR = (1<<3)
+#define	LED_G_OFF	GPIOA->BRR = (1<<3)
+#define	LED_O_ON	GPIOA->BSRR = (1<<4)
+#define	LED_O_OFF	GPIOA->BRR = (1<<4)
 
 #define KEY_MOD_NONE  0x00
 #define KEY_MOD_LCTRL  0x01
