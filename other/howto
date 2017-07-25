@@ -1,0 +1,52 @@
+* download raspbian
+
+* put ssh.txt into /boot
+
+* login, run raspi-config, setup new password, expand filesystem
+
+* sudo apt-get update
+  sudo apt-get upgrade
+  
+* Add to file /etc/modules-load.d/fbtft.conf
+	spi-bcm2835
+	fbtft_device
+
+
+* Add to file /etc/modprobe.d/fbtft.conf
+
+	options fbtft_device custom name=fb_ili9341 gpios=reset:25,dc:24,led:18 speed=16000000 rotate=90 bgr=1
+
+
+* sudo nano /boot/config.txt
+
+	dtoverlay=rpi-display
+
+* sudo reboot
+
+
+*	sudo nano /boot/cmdline.txt
+	fbcon=map:10 fbcon=font:VGA7x14 logo.nologo
+	
+*	sudo nano /usr/share/X11/xorg.conf.d/99-fbdev.conf
+		Section "Device"
+		  Identifier "bla"
+		  Driver "fbdev"
+		  Option "fbdev" "/dev/fb1"
+		EndSection
+	
+* in /boot/config.txt add the following line:
+
+    dtoverlay=pwm-2chan,pin=18,func=2,pin2=13,func2=4
+    audio_pwm_mode=2
+	
+* sudo reboot
+
+* sudo apt-get purge rfkill
+
+
+
+
+preferences - appearence : menu bar-small; text size 7
+
+Click on the File Manager icon:
+[Edit] --> [Preferences] Select [Display]
